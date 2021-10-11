@@ -36,7 +36,7 @@ func LoadTemplate(templatePath string) (string, error) {
 }
 
 // Compile the given template text with data into complete text output.
-func CompileTemplate(templateText string, data map[string]string) (string, error) {
+func CompileTemplate(templateText string, data map[string][]string) (string, error) {
 	tmpl, err := template.New("Template").Parse(templateText)
 	if err != nil {
 		return "", err
