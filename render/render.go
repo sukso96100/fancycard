@@ -1,0 +1,5 @@
+package render
+
+func RenderImage() {
+
+}
