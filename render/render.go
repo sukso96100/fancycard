@@ -3,13 +3,21 @@ package render
 import (
 	"context"
 	"io/ioutil"
-	"log"
 
+	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 )
 
-func RenderImage(templateHTML string) {
+type RenderOptions struct {
+	Width   int
+	Height  int
+	Quality int
+}
+
+var defaultRenderOptions RenderOptions = RenderOptions{1200, 600, 90}
+
+func RenderImage(templateHTML string) ([]byte, error) {
 	// create context
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
@@ -18,16 +26,19 @@ func RenderImage(templateHTML string) {
 	defer cancel()
 	var buf []byte
 	// capture entire browser viewport, returning png with quality=90
-	if err := chromedp.Run(ctx, fullScreenshot(ctx, templateHTML, 90, &buf)); err != nil {
-		log.Fatal(err)
+	if err := chromedp.Run(ctx, fullScreenshot(ctx, templateHTML, defaultRenderOptions, &buf)); err != nil {
+		return nil, err
 	}
 	if err := ioutil.WriteFile("fullScreenshot.png", buf, 0o644); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+
+	return buf, nil
 }
 
-func fullScreenshot(ctx context.Context, templateHTML string, quality int, res *[]byte) chromedp.Tasks {
+func fullScreenshot(ctx context.Context, templateHTML string, options RenderOptions, res *[]byte) chromedp.Tasks {
 	return chromedp.Tasks{
+		emulation.SetDeviceMetricsOverride(int64(options.Width), int64(options.Height), 1.0, false),
 		chromedp.Navigate("data:text/html,"),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			frameTree, err := page.GetFrameTree().Do(ctx)
@@ -36,6 +47,6 @@ func fullScreenshot(ctx context.Context, templateHTML string, quality int, res *
 			}
 			return page.SetDocumentContent(frameTree.Frame.ID, templateHTML).Do(ctx)
 		}),
-		chromedp.FullScreenshot(res, quality),
+		chromedp.FullScreenshot(res, options.Quality),
 	}
 }
