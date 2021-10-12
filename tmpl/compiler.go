@@ -5,12 +5,13 @@ import (
 	"embed"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"strings"
 	"text/template"
 )
 
-// go:embed templates/*
-var BuiltInTemplates embed.FS
+//go:embed templates/*.html
+var builtInTemplates embed.FS
 
 // Loads template text from built in templates file or from URL.
 func LoadTemplate(templatePath string) (string, error) {
@@ -28,7 +29,7 @@ func LoadTemplate(templatePath string) (string, error) {
 		}
 		return string(data), nil
 	}
-	tmplText, err := BuiltInTemplates.ReadFile(templatePath)
+	tmplText, err := builtInTemplates.ReadFile(path.Join("templates", templatePath))
 	if err != nil {
 		return "", err
 	}
