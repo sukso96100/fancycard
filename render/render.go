@@ -2,6 +2,7 @@ package render
 
 import (
 	"context"
+	"sync"
 
 	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/cdproto/page"
@@ -39,14 +40,27 @@ func fullScreenshot(ctx context.Context, templateHTML string, externalTemplateUR
 	} else {
 		navURL = "data:text/html,"
 	}
+	var wg sync.WaitGroup
 	return chromedp.Tasks{
 		chromedp.Navigate(navURL),
 		chromedp.ActionFunc(func(ctx context.Context) error {
+
 			frameTree, err := page.GetFrameTree().Do(ctx)
 			if err != nil {
 				return err
 			}
+			chromedp.ListenTarget(ctx, func(ev interface{}) {
+				switch ev.(type) {
+				case *page.EventLoadEventFired:
+					wg.Done()
+				}
+			})
+			wg.Add(1)
 			return page.SetDocumentContent(frameTree.Frame.ID, templateHTML).Do(ctx)
+		}),
+		chromedp.ActionFunc(func(c context.Context) error {
+			wg.Wait()
+			return nil
 		}),
 		emulation.SetDeviceMetricsOverride(int64(options.Width), int64(options.Height), 1.0, false),
 		chromedp.CaptureScreenshot(res),
