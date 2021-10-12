@@ -15,9 +15,9 @@ type RenderOptions struct {
 	Quality int
 }
 
-var defaultRenderOptions RenderOptions = RenderOptions{1200, 600, 90}
+var DefaultRenderOptions RenderOptions = RenderOptions{1200, 600, 90}
 
-func RenderImage(templateHTML string) ([]byte, error) {
+func RenderImage(templateHTML string, options RenderOptions) ([]byte, error) {
 	// create context
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
@@ -26,7 +26,7 @@ func RenderImage(templateHTML string) ([]byte, error) {
 	defer cancel()
 	var buf []byte
 	// capture entire browser viewport, returning png with quality=90
-	if err := chromedp.Run(ctx, fullScreenshot(ctx, templateHTML, defaultRenderOptions, &buf)); err != nil {
+	if err := chromedp.Run(ctx, fullScreenshot(ctx, templateHTML, options, &buf)); err != nil {
 		return nil, err
 	}
 	if err := ioutil.WriteFile("fullScreenshot.png", buf, 0o644); err != nil {

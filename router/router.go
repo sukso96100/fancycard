@@ -6,7 +6,9 @@ import (
 	"github.com/sukso96100/fancycard/tmpl"
 )
 
-func SetupRouter() {}
+func SetupRouter(e *gin.Engine) {
+	e.GET("/url", RenderWithDataFromURL)
+}
 
 func RenderWithDataFromURL(c *gin.Context) {
 	templatePath := c.DefaultQuery("template", "default")
@@ -27,7 +29,7 @@ func RenderWithDataFromURL(c *gin.Context) {
 		return
 	}
 
-	imageBuff, err := render.RenderImage(compiledTemplate)
+	imageBuff, err := render.RenderImage(compiledTemplate, render.DefaultRenderOptions)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err.Error(),
