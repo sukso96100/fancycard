@@ -16,7 +16,7 @@ type RenderOptions struct {
 
 var DefaultRenderOptions RenderOptions = RenderOptions{1200, 600, 90}
 
-func RenderImage(templateHTML string, options RenderOptions) ([]byte, error) {
+func RenderImage(templateHTML string, externalTemplateURL string, options RenderOptions) ([]byte, error) {
 	// create context
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
@@ -25,17 +25,22 @@ func RenderImage(templateHTML string, options RenderOptions) ([]byte, error) {
 	defer cancel()
 	var buf []byte
 	// capture entire browser viewport, returning png with quality=90
-	if err := chromedp.Run(ctx, fullScreenshot(ctx, templateHTML, options, &buf)); err != nil {
+	if err := chromedp.Run(ctx, fullScreenshot(ctx, templateHTML, externalTemplateURL, options, &buf)); err != nil {
 		return nil, err
 	}
 
 	return buf, nil
 }
 
-func fullScreenshot(ctx context.Context, templateHTML string, options RenderOptions, res *[]byte) chromedp.Tasks {
+func fullScreenshot(ctx context.Context, templateHTML string, externalTemplateURL string, options RenderOptions, res *[]byte) chromedp.Tasks {
+	var navURL string
+	if externalTemplateURL != "" {
+		navURL = externalTemplateURL
+	} else {
+		navURL = "data:text/html,"
+	}
 	return chromedp.Tasks{
-		emulation.SetDeviceMetricsOverride(int64(options.Width), int64(options.Height), 1.0, false),
-		chromedp.Navigate("data:text/html,"),
+		chromedp.Navigate(navURL),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			frameTree, err := page.GetFrameTree().Do(ctx)
 			if err != nil {
@@ -43,6 +48,7 @@ func fullScreenshot(ctx context.Context, templateHTML string, options RenderOpti
 			}
 			return page.SetDocumentContent(frameTree.Frame.ID, templateHTML).Do(ctx)
 		}),
-		chromedp.FullScreenshot(res, options.Quality),
+		emulation.SetDeviceMetricsOverride(int64(options.Width), int64(options.Height), 1.0, false),
+		chromedp.CaptureScreenshot(res),
 	}
 }

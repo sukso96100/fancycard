@@ -1,6 +1,8 @@
 package router
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sukso96100/fancycard/render"
 	"github.com/sukso96100/fancycard/tmpl"
@@ -29,7 +31,12 @@ func RenderWithDataFromURL(c *gin.Context) {
 		return
 	}
 
-	imageBuff, err := render.RenderImage(compiledTemplate, render.DefaultRenderOptions)
+	externalTemplateURL := ""
+	if strings.HasPrefix(templatePath, "http://") || strings.HasPrefix(templatePath, "https://") {
+		externalTemplateURL = templatePath
+	}
+
+	imageBuff, err := render.RenderImage(compiledTemplate, externalTemplateURL, render.DefaultRenderOptions)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err.Error(),
