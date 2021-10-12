@@ -2,7 +2,6 @@ package render
 
 import (
 	"context"
-	"io/ioutil"
 
 	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/cdproto/page"
@@ -27,9 +26,6 @@ func RenderImage(templateHTML string, options RenderOptions) ([]byte, error) {
 	var buf []byte
 	// capture entire browser viewport, returning png with quality=90
 	if err := chromedp.Run(ctx, fullScreenshot(ctx, templateHTML, options, &buf)); err != nil {
-		return nil, err
-	}
-	if err := ioutil.WriteFile("fullScreenshot.png", buf, 0o644); err != nil {
 		return nil, err
 	}
 
