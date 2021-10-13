@@ -10,12 +10,11 @@ import (
 )
 
 type RenderOptions struct {
-	Width   int
-	Height  int
-	Quality int
+	Width  int
+	Height int
 }
 
-var DefaultRenderOptions RenderOptions = RenderOptions{1200, 600, 90}
+var DefaultRenderOptions RenderOptions = RenderOptions{1200, 600}
 
 func RenderImage(templateHTML string, externalTemplateURL string, options RenderOptions) ([]byte, error) {
 	// create context
