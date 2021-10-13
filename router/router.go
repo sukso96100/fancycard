@@ -10,6 +10,7 @@ import (
 
 func SetupRouter(e *gin.Engine) {
 	e.GET("/url", RenderWithDataFromURL)
+	e.GET("/meta", RenderWithDataFromMetaTags)
 }
 
 func RenderWithDataFromURL(c *gin.Context) {
@@ -53,5 +54,40 @@ func RenderWithDataFromMetaTags(c *gin.Context) {
 			"error": "Target URL is empty",
 		})
 	}
+	templatePath, data, err := tmpl.ExtractMetaTagsFromURL(targetURL)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
+	templateText, err := tmpl.LoadTemplate(templatePath)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "Template not found",
+		})
+		return
+	}
+	compiledTemplate, err := tmpl.CompileTemplate(templateText, data)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	externalTemplateURL := ""
+	if strings.HasPrefix(templatePath, "http://") || strings.HasPrefix(templatePath, "https://") {
+		externalTemplateURL = templatePath
+	}
+
+	imageBuff, err := render.RenderImage(compiledTemplate, externalTemplateURL, render.DefaultRenderOptions)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.Data(200, "image/png", imageBuff)
 }
