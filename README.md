@@ -4,7 +4,8 @@ Built with Go, Gin, GoQuery and Chromedp
 
 ## Build & Run
 Simply, Clone this repo, build and run with Go Toolchain.  
-You can get Go Toolchain from [here](https://golang.org/dl/).
+You can get Go Toolchain from [here](https://golang.org/dl/).  
+You will also need Chrome or Chromium installed on your system to make this program work properly.
 ```bash
 git clone https://github.com/sukso96100/fancycard.git
 cd fancycard
