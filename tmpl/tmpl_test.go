@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/sukso96100/fancycard/tmpl"
 )
 
@@ -41,15 +42,8 @@ func Test_ExtractMetaTagsFromURL(t *testing.T) {
 		}))
 		defer ts.Close()
 		templatePath, templateData, err := tmpl.ExtractMetaTagsFromURL(ts.URL)
-		if err != nil {
-			t.Error(err)
-		}
-		if templatePath != data["templatePath"].(string) {
-			t.Errorf("templatePath: expected %s, got %s", data["templatePath"].(string), templatePath)
-		}
-		if !reflect.DeepEqual(templateData, data["templateData"]) {
-			t.Errorf("templateData: expected %v, got %v", data["templateData"], templateData)
-		}
+		assert.Nil(t, err)
+		assert.Equal(t, data["templatePath"].(string), templatePath)
+		assert.Equal(t, reflect.DeepEqual(templateData, data["templateData"]), true)
 	}
-
 }
