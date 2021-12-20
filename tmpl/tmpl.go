@@ -16,6 +16,8 @@ import (
 //go:embed templates/*.html
 var builtInTemplates embed.FS
 
+const metaNamePrefix = "fancycard:"
+
 // Extracts template path and map of data from meta tags from given web url.
 func ExtractMetaTagsFromURL(url string) (string, map[string][]string, error) {
 	// Request the HTML page.
@@ -36,7 +38,6 @@ func ExtractMetaTagsFromURL(url string) (string, map[string][]string, error) {
 
 	templatePath := ""
 	templateData := make(map[string][]string)
-	metaNamePrefix := "fancycard:"
 
 	// Find meta tags with metaNamePrefix and build map of data.
 	doc.Find("meta").Each(func(i int, s *goquery.Selection) {
