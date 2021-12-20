@@ -35,7 +35,7 @@ func Test_ExtractMetaTagsFromURL(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			data, err := ioutil.ReadFile(data["testData"].(string))
 			if err != nil {
-				fmt.Println("File reading error", err)
+				fmt.Print("File reading error", err)
 				return
 			}
 			fmt.Fprintln(w, string(data))
@@ -45,5 +45,38 @@ func Test_ExtractMetaTagsFromURL(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, data["templatePath"].(string), templatePath)
 		assert.Equal(t, reflect.DeepEqual(templateData, data["templateData"]), true)
+	}
+}
+
+func Test_LoadTemplate_FromFile(t *testing.T) {
+	templateFiles := []string{"simple.html", "simple2.html"}
+	for _, templateFile := range templateFiles {
+		templatePath := "templates/" + templateFile
+		templateTextA, err := ioutil.ReadFile(templatePath)
+		assert.Nil(t, err)
+		templateTextB, err := tmpl.LoadTemplate(templateFile)
+		assert.Nil(t, err)
+		assert.Equal(t, string(templateTextA), templateTextB)
+	}
+}
+
+func Test_LoadTemplate_FromURL(t *testing.T) {
+	templateFiles := []string{"simple.html", "simple2.html"}
+	for _, templateFile := range templateFiles {
+		templatePath := "templates/" + templateFile
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			data, err := ioutil.ReadFile(templatePath)
+			if err != nil {
+				fmt.Println("File reading error", err)
+				return
+			}
+			fmt.Fprint(w, string(data))
+		}))
+		defer ts.Close()
+		templateTextA, err := ioutil.ReadFile(templatePath)
+		assert.Nil(t, err)
+		templateTextB, err := tmpl.LoadTemplate(ts.URL)
+		assert.Nil(t, err)
+		assert.Equal(t, string(templateTextA), templateTextB)
 	}
 }
