@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    container: chromedp/headless-shell:98.0.4758.9
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+    - name: Install required debian packages
+      run: |
+        apt-get update -y && apt upgrade -y
+        apt-get install -y dumb-init ca-certificates procps fonts-noto-cjk fonts-noto-color-emoji
+        
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
