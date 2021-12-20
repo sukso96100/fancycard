@@ -1,3 +1,5 @@
+[![CI](https://github.com/sukso96100/fancycard/actions/workflows/ci.yml/badge.svg)](https://github.com/sukso96100/fancycard/actions/workflows/ci.yml)
+
 # fancycard
 Easily customizable Social image (or Open graph image) generator   
 Built with Go, Gin, GoQuery and Chromedp
