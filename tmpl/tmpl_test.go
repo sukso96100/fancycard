@@ -80,3 +80,32 @@ func Test_LoadTemplate_FromURL(t *testing.T) {
 		assert.Equal(t, string(templateTextA), templateTextB)
 	}
 }
+
+func Test_CompileTemplate(t *testing.T) {
+	testData := make([]map[string]interface{}, 0)
+	testData = append(testData,
+		map[string]interface{}{
+			"templatePath": "simple.html",
+			"templateData": map[string][]string{
+				"Title": {"Test Target Page 1"},
+			},
+		})
+	testData = append(testData,
+		map[string]interface{}{
+			"templatePath": "simple2.html",
+			"templateData": map[string][]string{
+				"Title":       {"Test Target Page 2"},
+				"Description": {"This page uses simple2.html"},
+			},
+		})
+	for _, data := range testData {
+		templatePath := data["templatePath"].(string)
+		templateText, err := ioutil.ReadFile("templates/" + templatePath)
+		assert.Nil(t, err)
+		compiledText, err := tmpl.CompileTemplate(string(templateText), data["templateData"].(map[string][]string))
+		assert.Nil(t, err)
+		toCompare, err := ioutil.ReadFile("../testdata/templates_compiled/" + templatePath)
+		assert.Nil(t, err)
+		assert.Equal(t, compiledText, string(toCompare))
+	}
+}
