@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build:
+  test:
     runs-on: ubuntu-latest
     container: chromedp/headless-shell:98.0.4758.9
     steps:
@@ -21,7 +21,7 @@ jobs:
     - name: Install required debian packages
       run: |
         apt-get update -y && apt upgrade -y
-        apt-get install -y dumb-init ca-certificates procps fonts-noto-cjk fonts-noto-color-emoji
+        apt-get install -y dumb-init ca-certificates procps fonts-noto-cjk fonts-noto-color-emoji build-essential
         
     - name: Build
       run: go build -v ./...
