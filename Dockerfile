@@ -7,7 +7,7 @@ WORKDIR /build
 RUN go build -o fancycard .
 
 # product stage
-FROM chromedp/headless-shell:94.0.4606.81
+FROM chromedp/headless-shell:98.0.4758.9
 
 RUN apt-get update && \
     apt-get install -y dumb-init ca-certificates procps fonts-noto-cjk fonts-noto-color-emoji && \
